@@ -94,7 +94,7 @@ router.put("/api/shorten/:shortCode", async (req, res) => {
                 new: true
             }
         );
-        
+
         if (!updatedUrl) {
             return res.status(404).json({
                 error: "Short URL not found"
@@ -114,6 +114,28 @@ router.put("/api/shorten/:shortCode", async (req, res) => {
 
         res.status(500).json({
             error: "Failed to update URL"
+        });
+    }
+});
+
+router.delete("/api/shorten/:shortCode", async (req, res) => {
+    const { shortCode } = req.params; // Extract the shortCode from the request parameters
+
+    try {
+        const deletedUrl = await Url.findOneAndDelete({ shortCode }); // Find and delete the URL document with the given shortCode
+
+        if (!deletedUrl) {
+            return res.status(404).json({
+                error: "Short URL not found"
+            });
+        }
+
+        res.status(204).send();
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to delete URL"
         });
     }
 });
