@@ -26,9 +26,15 @@ app.post("/api/shorten", async (req, res) => {
         });
     }
 
-    const shortCode = crypto.randomBytes(4).toString("hex");
-
     try {
+        let shortCode;
+        let existingUrl;
+
+        do {
+            shortCode = crypto.randomBytes(4).toString("hex");
+            existingUrl = await Url.findOne({ shortCode });
+        } while (existingUrl);
+
         const newUrl = new Url({
             url: url,
             shortCode: shortCode
