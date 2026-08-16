@@ -2,61 +2,18 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const express = require("express");
-const crypto = require("crypto");
-
 const connectDB = require("./config/db");
-const Url = require("./models/Url");
+const route = require("./routes/route");
 
 const app = express();
-
 app.use(express.json());
+
+app.use(route);
 
 const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-    res.send("Hello World");
-});
-
-app.post("/api/shorten", async (req, res) => {
-    const { url } = req.body;
-
-    if (!url) {
-        return res.status(400).json({
-            error: "URL is required"
-        });
-    }
-
-    try {
-        let shortCode;
-        let existingUrl;
-
-        do {
-            shortCode = crypto.randomBytes(4).toString("hex");
-            existingUrl = await Url.findOne({ shortCode });
-        } while (existingUrl);
-
-        const newUrl = new Url({
-            url: url,
-            shortCode: shortCode
-        });
-
-        await newUrl.save();
-
-        res.status(201).json({
-            id: newUrl._id,
-            url: newUrl.url,
-            shortCode: newUrl.shortCode,
-            createdAt: newUrl.createdAt,
-            updatedAt: newUrl.updatedAt,
-            accessCount: newUrl.accessCount
-        });
-    } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            error: "Failed to shorten URL"
-        });
-    }
+    res.send("Welcome to the URL Shortener API");
 });
 
 const startServer = async () => {
