@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Url = require("../models/Url");
 
+// POST /api/shorten - Create a new shortened URL
 router.post("/api/shorten", async (req, res) => {
     const { url } = req.body;
 
@@ -44,6 +45,7 @@ router.post("/api/shorten", async (req, res) => {
     }
 });
 
+// GET /api/shorten/:shortCode - Retrieve URL details by short code
 router.get("/api/shorten/:shortCode", async (req, res) => {
     const { shortCode } = req.params;
 
@@ -73,6 +75,8 @@ router.get("/api/shorten/:shortCode", async (req, res) => {
     }
 });
 
+
+// PUT /api/shorten/:shortCode - Update an existing shortened URL
 router.put("/api/shorten/:shortCode", async (req, res) => {
     const { shortCode } = req.params;
     const { url } = req.body;
@@ -118,6 +122,8 @@ router.put("/api/shorten/:shortCode", async (req, res) => {
     }
 });
 
+
+// DELETE /api/shorten/:shortCode - Delete a shortened URL
 router.delete("/api/shorten/:shortCode", async (req, res) => {
     const { shortCode } = req.params; // Extract the shortCode from the request parameters
 
@@ -139,5 +145,64 @@ router.delete("/api/shorten/:shortCode", async (req, res) => {
         });
     }
 });
+
+// GET /:shortCode - Redirect to the original URL and increment access count
+router.get("/:shortCode", async (req, res) => {
+    const { shortCode } = req.params;
+
+    try {
+        const url = await Url.findOne({ shortCode });
+
+        if (!url) {
+            return res.status(404).json({
+                error: "Short URL not found"
+            });
+        }
+
+        url.accessCount += 1;
+        await url.save();
+
+        res.redirect(url.url);
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to redirect"
+        });
+    }
+});
+
+// GET /api/shorten/:shortCode/stats - Retrieve statistics for a shortened URL
+router.get("/api/shorten/:shortCode/stats", async (req, res) => {
+    const { shortCode } = req.params;
+
+    try {
+        const url = await Url.findOne({ shortCode });
+
+        if (!url) {
+            return res.status(404).json({
+                error: "Short URL not found"
+            });
+        }
+
+        res.status(200).json({
+            id: url._id,
+            url: url.url,
+            shortCode: url.shortCode,
+            createdAt: url.createdAt,
+            updatedAt: url.updatedAt,
+            accessCount: url.accessCount
+        });
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to retrieve URL"
+        });
+    }
+});
+
+
 
 module.exports = router;
