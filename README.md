@@ -2,7 +2,7 @@
 
 A RESTful API for creating, managing, and tracking shortened URLs.
 
-Built with **Node.js**, **Express.js**, and **MongoDB**.
+Built with **Node.js**, **Express.js**, and **MongoDB** for Roadmap Project https://roadmap.sh/projects/url-shortening-service
 
 ## Features
 
